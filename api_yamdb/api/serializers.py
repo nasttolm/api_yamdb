@@ -1,7 +1,7 @@
 from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
 
-from .models import User
-
+from reviews.models import User, Category, Genre, Title
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -18,3 +18,33 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
+
+      
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = SlugRelatedField(
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all()
+    )
+    category = SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Title
