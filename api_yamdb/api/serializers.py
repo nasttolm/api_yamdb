@@ -8,6 +8,7 @@ from reviews.models import (User,
                             Review)
 
 
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=128,
@@ -29,7 +30,7 @@ class UserGetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=256)
     confirmation_code = serializers.CharField(max_length=256)
 
-      
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -58,3 +59,20 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
+
+
+class TitleGETSerializer(serializers.ModelField):
+    category = CategorySerializer(many=True)
+    genre = GenreSerializer()
+    rating = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id',
+                  'name',
+                  'year',
+                  'rating',
+                  'description',
+                  'genre',
+                  'category')
+        model = Title
+        read_only_fields = ('category', 'genre', 'rating')

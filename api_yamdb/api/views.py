@@ -17,7 +17,9 @@ from .serializers import (UserGetTokenSerializer,
                           UserRegistrationSerializer,
                           CategorySerializer,
                           GenreSerializer,
-                          TitleSerializer,)
+                          TitleSerializer,
+                          TitleGETSerializer)
+
 from .permissions import AdminOrReadOnly
 
 
@@ -75,6 +77,11 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating = Avg("reviews__score"))
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (AdminOrReadOnly, )
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitleGETSerializer
+        return TitleSerializer
