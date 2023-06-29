@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 
 from rest_framework import status, viewsets, permissions
 from rest_framework.views import APIView
@@ -10,12 +11,14 @@ from rest_framework.response import Response
 from reviews.models import (User,
                             Category,
                             Genre,
-                            Title)
+                            Title,
+                            Review)
 from .serializers import (UserGetTokenSerializer,
                           UserRegistrationSerializer,
                           CategorySerializer,
                           GenreSerializer,
-                          TitleSerializer)
+                          TitleSerializer,
+                          ReviewSerializer)
 from .permissions import AdminOrReadOnly
 
 
@@ -73,6 +76,6 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating = Title.reviews.aggregate(Avg("score")))
     serializer_class = TitleSerializer
     permission_classes = (AdminOrReadOnly, )
