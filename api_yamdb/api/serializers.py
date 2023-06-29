@@ -19,6 +19,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+
+class UserGetTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=256)
+    confirmation_code = serializers.CharField(max_length=256)
+
       
 class CategorySerializer(serializers.ModelSerializer):
 
