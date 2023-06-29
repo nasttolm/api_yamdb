@@ -7,6 +7,7 @@ from reviews.models import (User,
                             Title,
                             Review)
 
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=128,
