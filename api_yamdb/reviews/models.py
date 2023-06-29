@@ -129,7 +129,7 @@ class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='author_reviews',
+        related_name='reviews',
         verbose_name='Автор отзыва'
     )
     score = models.IntegerField(
