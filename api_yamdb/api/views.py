@@ -2,13 +2,21 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 
-from rest_framework import status
+from rest_framework import status, viewsets, permissions
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 
-from reviews.models import User
-from .serializers import UserGetTokenSerializer, UserRegistrationSerializer
+from reviews.models import (User,
+                            Category,
+                            Genre,
+                            Title)
+from .serializers import (UserGetTokenSerializer,
+                          UserRegistrationSerializer,
+                          CategorySerializer,
+                          GenreSerializer,
+                          TitleSerializer)
+from .permissions import AdminOrReadOnly
 
 
 class UserRegistrationView(APIView):
@@ -50,3 +58,21 @@ class UserGetTokenView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (AdminOrReadOnly, )
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (AdminOrReadOnly, )
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = (AdminOrReadOnly, )
