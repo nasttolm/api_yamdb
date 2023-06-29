@@ -27,7 +27,8 @@ class Category(models.Model):
     )
     slug = models.SlugField(
         max_length=50,
-        verbose_name='Идентификатор категории'
+        verbose_name='Идентификатор категории',
+        unique=True
     )
 
     def __str__(self):
@@ -41,7 +42,8 @@ class Genre(models.Model):
     )
     slug = models.SlugField(
         max_length=50,
-        verbose_name='Идентификатор жанра'
+        verbose_name='Идентификатор жанра',
+        unique=True
     )
 
     def __str__(self):
