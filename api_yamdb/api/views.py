@@ -11,13 +11,15 @@ from rest_framework.response import Response
 from reviews.models import (User,
                             Category,
                             Genre,
-                            Title)
+                            Title,
+                            Review)
 from .serializers import (UserGetTokenSerializer,
                           UserRegistrationSerializer,
                           CategorySerializer,
                           GenreSerializer,
                           TitleSerializer,
                           TitleGETSerializer)
+
 from .permissions import AdminOrReadOnly
 
 
