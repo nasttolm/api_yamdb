@@ -3,7 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 
-from rest_framework import status, viewsets, permissions
+from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -17,8 +17,7 @@ from .serializers import (UserGetTokenSerializer,
                           UserRegistrationSerializer,
                           CategorySerializer,
                           GenreSerializer,
-                          TitleSerializer,
-                          ReviewSerializer)
+                          TitleSerializer,)
 from .permissions import AdminOrReadOnly
 
 
@@ -76,6 +75,6 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating = Title.reviews.aggregate(Avg("score")))
+    queryset = Title.objects.annotate(rating = Avg("reviews__score"))
     serializer_class = TitleSerializer
     permission_classes = (AdminOrReadOnly, )
