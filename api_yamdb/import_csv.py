@@ -1,12 +1,12 @@
-import os
-
-import django
 import pandas as pd
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_yamdb.settings')
-django.setup()
-
-from reviews.models import (Category, Comment, GenreTitle, Genre, Review, Title, User)
+from reviews.models import (Category,
+                            Comment,
+                            GenreTitle,
+                            Genre,
+                            Review,
+                            Title,
+                            User)
 
 csv_files = [
     'api_yamdb/static/data/category.csv',
@@ -75,5 +75,9 @@ for i, csv_file in enumerate(csv_files):
         model_instance = model[i]()
         for key, value in mapping.items():
             setattr(model_instance, key, row[value])
-        model_instance.save()
-    print(f"Импортировано {len(df)} строк из файла {csv_file}.")
+        obj, created = model[i].objects.get_or_create(
+            **model_instance.__dict__)
+        if created:
+            obj.save()
+
+    print(f'Импортировано {len(df)} строк из файла {csv_file}.')
