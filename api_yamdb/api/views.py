@@ -23,7 +23,6 @@ from .serializers import (UserGetTokenSerializer,
                           ReviewSerializer,
                           CommentSerializer
                           )
-
 from .permissions import (AdminOrReadOnly,
                           AuthorAdminModerOrReadOnly,
                           AdminPermission)
