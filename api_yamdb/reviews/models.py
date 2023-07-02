@@ -171,12 +171,6 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор комментария'
     )
-    title_id = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Произведение'
-    )
     review_id = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
