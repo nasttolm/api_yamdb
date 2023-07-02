@@ -1,7 +1,13 @@
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
+from rest_framework.relations import SlugRelatedField, StringRelatedField
 
-from reviews.models import User, Category, Genre, Title
+from reviews.models import (User,
+                            Category,
+                            Genre,
+                            Title,
+                            Review,
+                            Comment)
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -24,7 +30,7 @@ class UserGetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=256)
     confirmation_code = serializers.CharField(max_length=256)
 
-      
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -53,3 +59,38 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
+
+
+class TitleGETSerializer(serializers.ModelField):
+    category = CategorySerializer(many=True)
+    genre = GenreSerializer()
+    rating = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id',
+                  'name',
+                  'year',
+                  'rating',
+                  'description',
+                  'genre',
+                  'category')
+        model = Title
+        read_only_fields = ('category', 'genre', 'rating')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = StringRelatedField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+        read_only_fields = ('author', 'pub_date')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = StringRelatedField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
+        read_only_fields = ('author', 'pub_date')
