@@ -86,6 +86,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         read_only_fields = ('author', 'pub_date')
 
+
 class CommentSerializer(serializers.ModelSerializer):
     author = StringRelatedField(default=serializers.CurrentUserDefault())
 
