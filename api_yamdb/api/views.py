@@ -23,7 +23,7 @@ from .serializers import (UserGetTokenSerializer,
                           ReviewSerializer,
                           CommentSerializer)
 
-from .permissions import AdminOrReadOnly
+from .permissions import AdminOrReadOnly, AuthOrReadOnly
 
 
 class UserRegistrationView(APIView):
