@@ -18,7 +18,11 @@ from .serializers import (UserGetTokenSerializer,
                           UserRegistrationSerializer,
                           CategorySerializer,
                           GenreSerializer,
-                          TitleSerializer)
+                          TitleSerializer,
+                          TitleGETSerializer,
+                          ReviewSerializer,
+                          CommentSerializer
+                          )
 
 from .permissions import (AdminOrReadOnly,
                           AuthorAdminModerOrReadOnly,
