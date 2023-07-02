@@ -16,7 +16,8 @@ from .serializers import (UserGetTokenSerializer,
                           CategorySerializer,
                           GenreSerializer,
                           TitleSerializer)
-from .permissions import AdminOrReadOnly
+from .permissions import (AdminOrReadOnly, AdminPermission,
+                          AuthorAdminModerOrReadOnly)
 
 
 class UserRegistrationView(APIView):
