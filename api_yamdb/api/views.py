@@ -3,10 +3,11 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import (User,
                             Category,
@@ -27,6 +28,8 @@ from .serializers import (UserGetTokenSerializer,
 from .permissions import (AdminOrReadOnly,
                           AuthorAdminModerOrReadOnly,
                           AdminPermission)
+
+from .filters import TitleFilter
 
 
 class UserRegistrationView(APIView):
@@ -74,18 +77,24 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (AdminOrReadOnly, )
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('name', )
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly, )
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('name', )
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (AdminOrReadOnly, )
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
