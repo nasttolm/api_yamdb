@@ -21,21 +21,28 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from api.views import UserRegistrationView, UserGetTokenView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path('api/v1/', include('api.urls')),
     path(
         'redoc/',
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
     path(
-        'api/token/',
-        TokenObtainPairView.as_view(),
+        'api/v1/auth/signup/',
+        UserRegistrationView.as_view(),
+        name='user_registration'
+    ),
+    path(
+        'api/v1/auth/token/',
+        UserGetTokenView.as_view(),
         name='token_obtain_pair'
     ),
     path(
-        'api/token/refresh/',
+        'api/v1/token/refresh/',
         TokenRefreshView.as_view(),
         name='token_refresh'
     ),

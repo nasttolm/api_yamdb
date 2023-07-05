@@ -10,23 +10,20 @@ from reviews.models import (User,
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-    )
-
-    token = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = User
         fields = ('email', 'username')
 
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+    def create(self, data):
+        if data.get('username') == 'me':
+            return serializers.ValidationError(
+                'Значение "me" запрещено указывать при регистрации.')
+        return User.objects.create_user(**data)
 
 
 class UserGetTokenSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=255, read_only=True)
     username = serializers.CharField(max_length=256)
     confirmation_code = serializers.CharField(max_length=256)
 
@@ -62,15 +59,15 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TitleGETSerializer(serializers.ModelField):
-    category = CategorySerializer(many=True)
-    genre = GenreSerializer()
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
     rating = serializers.IntegerField()
 
     class Meta:
         fields = ('id', 'name', 'year', 'rating', 'description', 'genre',
                   'category')
         model = Title
-        read_only_fields = ('category', 'genre', 'rating')
+        read_only_fields = ('genre', 'category', 'rating')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
