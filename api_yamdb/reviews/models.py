@@ -19,6 +19,7 @@ class User(AbstractUser):
     )
     email = models.SlugField(
         max_length=254,
+        unique=True,
         verbose_name='Email пользователя'
     )
     first_name = models.CharField(
