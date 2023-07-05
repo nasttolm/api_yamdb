@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
-    'djoser',
     'api.apps.ApiConfig',
 ]
 
@@ -121,5 +120,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
 
 AUTH_USER_MODEL = 'reviews.User'

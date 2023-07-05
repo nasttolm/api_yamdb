@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import RegexValidator
 
 
 CHAR_REQUIRED_NUMBER = 16
@@ -9,15 +10,19 @@ ROLES = [
     ('M', 'moderator'),
     ('A', 'admin')
 ]
+USERNAME_REGULAR = RegexValidator(
+    regex=r'^[\w.@+-]+$',
+    message='Поддерживаются только буквы, цифры и знаки @.+-_')
 
 
 class User(AbstractUser):
-    username = models.SlugField(
+    username = models.CharField(
         max_length=150,
         unique=True,
+        validators=[USERNAME_REGULAR],
         verbose_name='Юзернейм пользователя'
     )
-    email = models.SlugField(
+    email = models.EmailField(
         max_length=254,
         unique=True,
         verbose_name='Email пользователя'
@@ -55,6 +60,9 @@ class Category(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
+        validators=[RegexValidator(
+            regex=r'^[-a-zA-Z0-9_]+$',
+            message='Поддерживаются только латинские буквы, - и _')],
         verbose_name='Идентификатор категории'
     )
 
@@ -70,6 +78,9 @@ class Genre(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
+        validators=[RegexValidator(
+            regex=r'^[-a-zA-Z0-9_]+$',
+            message='Поддерживаются только латинские буквы, - и _')],
         verbose_name='Идентификатор жанра'
     )
 
@@ -84,7 +95,6 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         verbose_name='Год выпуска',
-
     )
     description = models.TextField(
         null=True,
