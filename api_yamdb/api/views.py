@@ -2,12 +2,14 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets, filters
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
+
 
 from reviews.models import (User,
                             Category,
@@ -22,7 +24,8 @@ from .serializers import (UserGetTokenSerializer,
                           TitleSerializer,
                           TitleGETSerializer,
                           ReviewSerializer,
-                          CommentSerializer
+                          CommentSerializer,
+                          UserSerializer
                           )
 from .permissions import (AdminOrReadOnly,
                           AuthorAdminModerOrReadOnly,
@@ -120,7 +123,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (AuthorAdminModerOrReadOnly,)
-    
+
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
 
@@ -129,3 +132,23 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_review())
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AdminPermission,)
+    lookup_field = 'username'
+
+    @action(methods=['GET', 'PATCH'], detail=True, url_path='me')
+    def get_patch_current_user(self, request):
+        if request.method == 'GET':
+            data = User.objects.all().filter(username=request.user).values(
+                'username', 'email', 'first_name', 'last_name', 'bio', 'role')
+            return Response(data, status=status.HTTP_200_OK)
+        elif request.method == 'PATCH':
+            serializer = UserSerializer(data=request.data)
+            if serializer.is_valid():
+                return self.update(request)
+            return Response('При заполнении полей ошибка.',
+                            status=status.HTTP_400_BAD_REQUEST)

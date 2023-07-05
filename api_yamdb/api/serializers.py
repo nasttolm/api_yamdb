@@ -20,7 +20,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password', 'token']
+        fields = ('email', 'username')
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -67,12 +67,7 @@ class TitleGETSerializer(serializers.ModelField):
     rating = serializers.IntegerField()
 
     class Meta:
-        fields = ('id',
-                  'name',
-                  'year',
-                  'rating',
-                  'description',
-                  'genre',
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre',
                   'category')
         model = Title
         read_only_fields = ('category', 'genre', 'rating')
@@ -94,3 +89,13 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
         read_only_fields = ('author', 'pub_date')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio',
+                  'role')
+        model = User
