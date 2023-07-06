@@ -29,6 +29,8 @@ class UserGetTokenSerializer(serializers.Serializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=256)
+    slug = serializers.SlugField(max_length=50)
 
     class Meta:
         fields = ('name', 'slug')
@@ -36,6 +38,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=256)
+    slug = serializers.SlugField(max_length=50)
 
     class Meta:
         fields = ('name', 'slug')
@@ -43,6 +47,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=256)
     genre = SlugRelatedField(
         slug_field='slug',
         many=True,
@@ -56,7 +61,6 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-
 
 
 class TitleGETSerializer(serializers.ModelSerializer):
