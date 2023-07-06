@@ -8,6 +8,11 @@ class AdminOrReadOnly(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS
             or request.user.is_authenticated and request.user.role == 'A')
 
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_authenticated and request.user.role == 'A')
+
 
 class AuthorAdminModerOrReadOnly(permissions.BasePermission):
 

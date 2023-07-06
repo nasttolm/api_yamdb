@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -83,6 +83,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
     search_fields = ('name', )
     lookup_field = 'slug'
 
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response('При заполнении полей ошибка.',
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
@@ -91,6 +100,15 @@ class GenreViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name', )
     lookup_field = 'slug'
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response('При заполнении полей ошибка.',
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
