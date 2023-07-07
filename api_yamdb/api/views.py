@@ -122,15 +122,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return Response('При заполнении полей ошибка.',
                         status=status.HTTP_400_BAD_REQUEST)
 
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data,
-                            status=status.HTTP_201_CREATED)
-        return Response('При заполнении полей ошибка.',
-                        status=status.HTTP_400_BAD_REQUEST)
-
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
