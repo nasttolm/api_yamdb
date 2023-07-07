@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
-# from django.core.mail import send_mail
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
+from django.core.mail import send_mail
 from rest_framework import status, viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.views import APIView
@@ -63,9 +63,32 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+def create_code(username):
+    user = get_object_or_404(User, username=username)
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        "Подтверждение регистрации на YaMDb!",
+        "Для подтверждения регистрации отправьте код:"
+        f"{confirmation_code}",
+        "yamdb.host@yandex.ru",
+        [user.email],
+        fail_silently=False,
+    )
+
+
 class UserRegistrationView(APIView):
     def post(self, request):
+        email = request.data.get('email')
+        username = request.data.get('username')
         serializer = UserRegistrationSerializer(data=request.data)
+        if User.objects.filter(username=username, email=email).exists():
+            create_code(
+                username
+            )
+            return Response(
+                {'email': serializer.initial_data['email'],
+                 'username': serializer.initial_data['username']},
+                status=status.HTTP_200_OK)
         if serializer.is_valid():
             user = serializer.save()
             confirmation_code = default_token_generator.make_token(user)
