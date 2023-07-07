@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.decorators import action
-
+from rest_framework.pagination import PageNumberPagination
 
 from reviews.models import (User,
                             Category,
@@ -111,12 +111,20 @@ class GenreViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
+class Pagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('name')
     serializer_class = TitleSerializer
-    permission_classes = (AdminOrReadOnly, )
+    permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilter
+    pagination_class = Pagination
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -155,10 +163,13 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('username')
     serializer_class = UserSerializer
     permission_classes = (AdminPermission,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
     lookup_field = 'username'
+    pagination_class = Pagination
 
     @action(methods=['GET', 'PATCH'], detail=True, url_path='me')
     def get_patch_current_user(self, request):
