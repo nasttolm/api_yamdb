@@ -4,12 +4,13 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import status, viewsets, filters
+from rest_framework import status, viewsets, permissions, filters
+from rest_framework.decorators import action
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import (User,
                             Category,
@@ -17,7 +18,10 @@ from reviews.models import (User,
                             Title,
                             Review,
                             Comment)
-from .serializers import (UserGetTokenSerializer,
+from .serializers import (CommentSerializer,
+                          ReviewSerializer,
+                          TitleGETSerializer,
+                          UserGetTokenSerializer,
                           UserRegistrationSerializer,
                           CategorySerializer,
                           GenreSerializer,
@@ -27,10 +31,36 @@ from .serializers import (UserGetTokenSerializer,
                           CommentSerializer,
                           UserSerializer
                           )
+
 from .permissions import (AdminOrReadOnly,
                           AuthorAdminModerOrReadOnly,
                           AdminPermission)
 from .filters import TitleFilter
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AdminPermission,)
+    lookup_field = 'username'
+
+    @action(
+        methods=['GET', 'PATCH'],
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def me(self, request):
+        serializer = UserSerializer(request.user)
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                request.user,
+                data=request.data,
+                partial=True
+            )
+            if serializer.is_valid():
+                serializer.validated_data['role'] = request.user.role
+                serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserRegistrationView(APIView):
@@ -92,6 +122,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return Response('При заполнении полей ошибка.',
                         status=status.HTTP_400_BAD_REQUEST)
 
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response('При заполнении полей ошибка.',
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
@@ -116,6 +155,15 @@ class Pagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response('При заполнении полей ошибка.',
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
@@ -130,6 +178,15 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return TitleGETSerializer
         return TitleSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance,
+                                         data=request.data,
+                                         partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
