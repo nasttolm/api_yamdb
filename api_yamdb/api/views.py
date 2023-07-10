@@ -106,7 +106,6 @@ class UserRegistrationView(APIView):
                 'yamdb.host@yandex.ru',
                 [serializer.validated_data.get('email')],
             )
-            print(confirmation_code)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -153,6 +152,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_201_CREATED)
         return Response('При заполнении полей ошибка.',
                         status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response('Запросы к категориям по slug запрещены.',
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        return Response('Изменения категорий по slug запрещены.',
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class GenreViewSet(ModelMixinSet):
