@@ -98,12 +98,12 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             confirmation_code = default_token_generator.make_token(user)
-            # send_mail(
-            #     'Код подтверждения регистрации',
-            #     f'{confirmation_code}',
-            #     'yamdb.host@yandex.ru',
-            #     [serializer.validated_data.get('email')],
-            # )
+            send_mail(
+                'Код подтверждения регистрации',
+                f'{confirmation_code}',
+                'yamdb.host@yandex.ru',
+                [serializer.validated_data.get('email')],
+            )
             print(confirmation_code)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
