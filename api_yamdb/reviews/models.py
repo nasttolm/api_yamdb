@@ -25,6 +25,8 @@ class User(AbstractUser):
     email = models.EmailField(
         max_length=254,
         unique=True,
+        blank=False,
+        null=False,
         verbose_name='Email пользователя'
     )
     first_name = models.CharField(
@@ -50,6 +52,12 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ['username']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='unique_user'
+            )
+        ]
 
     def __str__(self):
         return f'Пользователь {self.first_name} {self.last_name}'
