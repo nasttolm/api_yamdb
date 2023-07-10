@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.validators import RegexValidator
+
+from .validators import year_validator, slug_validator, username_regular
 
 
 CHAR_REQUIRED_NUMBER = 16
@@ -10,16 +11,13 @@ ROLES = [
     ('M', 'moderator'),
     ('A', 'admin')
 ]
-USERNAME_REGULAR = RegexValidator(
-    regex=r'^[\w.@+-]+$',
-    message='Поддерживаются только буквы, цифры и знаки @.+-_')
 
 
 class User(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        validators=[USERNAME_REGULAR],
+        validators=[username_regular],
         verbose_name='Юзернейм пользователя'
     )
     email = models.EmailField(
@@ -60,11 +58,14 @@ class Category(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        validators=[RegexValidator(
-            regex=r'^[-a-zA-Z0-9_]+$',
-            message='Поддерживаются только латинские буквы, - и _')],
+        validators=[slug_validator],
         verbose_name='Идентификатор категории'
     )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name[:CHAR_REQUIRED_NUMBER]
@@ -78,11 +79,14 @@ class Genre(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        validators=[RegexValidator(
-            regex=r'^[-a-zA-Z0-9_]+$',
-            message='Поддерживаются только латинские буквы, - и _')],
+        validators=[slug_validator],
         verbose_name='Идентификатор жанра'
     )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name[:CHAR_REQUIRED_NUMBER]
@@ -94,7 +98,10 @@ class Title(models.Model):
         verbose_name='Название произведения'
     )
     year = models.IntegerField(
+        validators=[year_validator],
         verbose_name='Год выпуска',
+        null=True,
+        blank=True
     )
     description = models.TextField(
         null=True,
@@ -103,15 +110,24 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
+        blank=True,
         through='GenreTitle',
-        verbose_name='Жанр'
+        verbose_name='Жанр',
+        related_name='titles'
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         related_name='titles',
-        verbose_name='Категория'
+        verbose_name='Категория',
+        null=True,
+        blank=True,
     )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
     def __str__(self):
         return self.name[:CHAR_REQUIRED_NUMBER]
@@ -148,7 +164,7 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='Оценка произведения'
     )
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
@@ -161,6 +177,8 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
+        verbose_name = 'Обзор'
+        verbose_name_plural = 'Обзоры'
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title_id'],
@@ -182,7 +200,7 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор комментария'
     )
-    review_id = models.ForeignKey(
+    review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
@@ -190,11 +208,14 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Дата публикации комментария'
+        verbose_name='Дата публикации комментария',
+        db_index=True
     )
 
     class Meta:
         ordering = ['pub_date']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text[:CHAR_REQUIRED_NUMBER]
