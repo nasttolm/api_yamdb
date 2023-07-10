@@ -15,11 +15,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username')
 
-    def create(self, data):
-        if data.get('username') == 'me':
-            return serializers.ValidationError(
-                'Значение "me" запрещено указывать при регистрации.')
-        return User.objects.create_user(**data)
+    def validate(self, data):
+        if data['username'] == 'me':
+            raise serializers.ValidationError(
+                {'Выберите другой username'})
+        return data
 
 
 class UserGetTokenSerializer(serializers.Serializer):
