@@ -105,8 +105,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True,
+                                     max_length=150)
+    email = serializers.EmailField(required=True,
+                                   max_length=254)
 
     class Meta:
         fields = ('username', 'email', 'first_name', 'last_name', 'bio',
