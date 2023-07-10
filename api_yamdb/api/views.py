@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from .mixins import ModelMixinSet
 from reviews.models import (User,
                             Category,
                             Genre,
@@ -142,7 +143,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name', )
     lookup_field = 'slug'
-    pagination_class = Pagination
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -154,7 +154,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ModelMixinSet):
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly, )
@@ -198,7 +198,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (AuthorAdminModerOrReadOnly,
                           permissions.IsAuthenticatedOrReadOnly)
