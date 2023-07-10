@@ -80,6 +80,7 @@ def create_code(username):
         [user.email],
         fail_silently=False,
     )
+    print(confirmation_code)
 
 
 class UserRegistrationView(APIView):
@@ -141,6 +142,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name', )
     lookup_field = 'slug'
+    pagination_class = Pagination
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)

@@ -7,9 +7,9 @@ from .validators import year_validator, slug_validator, username_regular
 
 CHAR_REQUIRED_NUMBER = 16
 ROLES = [
-    ('U', 'user'),
-    ('M', 'moderator'),
-    ('A', 'admin')
+    ('user', 'user'),
+    ('moderator', 'moderator'),
+    ('admin', 'admin')
 ]
 
 
@@ -40,7 +40,7 @@ class User(AbstractUser):
         verbose_name='Биография пользователя'
     )
     role = models.CharField(
-        max_length=2,
+        max_length=20,
         choices=ROLES,
         default=ROLES[0][0],
         verbose_name='Роль пользователя'
