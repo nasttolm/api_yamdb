@@ -7,7 +7,7 @@ from reviews.models import (User,
                             Title,
                             Review,
                             Comment)
-
+from reviews.models import username_regular
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
 
@@ -115,7 +115,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True,
-                                     max_length=150)
+                                     max_length=150,
+                                     validators=[username_regular])
     email = serializers.EmailField(required=True,
                                    max_length=254)
 

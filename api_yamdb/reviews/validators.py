@@ -17,5 +17,5 @@ slug_validator = RegexValidator(
 )
 
 username_regular = RegexValidator(
-    r'^[\w.@+-]+$',
+    r'^[\w.@+-]+\Z',
     'Поддерживаются только буквы, цифры и знаки @.+-_')
