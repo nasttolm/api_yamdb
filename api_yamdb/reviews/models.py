@@ -46,6 +46,9 @@ class User(AbstractUser):
         verbose_name='Роль пользователя'
     )
 
+    class Meta:
+        ordering = ['username']
+
     def __str__(self):
         return f'Пользователь {self.first_name} {self.last_name}'
 
