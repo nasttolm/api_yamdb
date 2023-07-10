@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
-# from django.core.mail import send_mail
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
+from django.core.mail import send_mail
 from rest_framework import status, viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.views import APIView
@@ -38,6 +38,12 @@ from .permissions import (AdminOrReadOnly,
 from .filters import TitleFilter
 
 
+class Pagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -63,9 +69,32 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+def create_code(username):
+    user = get_object_or_404(User, username=username)
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        "Подтверждение регистрации на YaMDb!",
+        "Для подтверждения регистрации отправьте код:"
+        f"{confirmation_code}",
+        "yamdb.host@yandex.ru",
+        [user.email],
+        fail_silently=False,
+    )
+
+
 class UserRegistrationView(APIView):
     def post(self, request):
+        email = request.data.get('email')
+        username = request.data.get('username')
         serializer = UserRegistrationSerializer(data=request.data)
+        if User.objects.filter(username=username, email=email).exists():
+            create_code(
+                username
+            )
+            return Response(
+                {'email': serializer.initial_data['email'],
+                 'username': serializer.initial_data['username']},
+                status=status.HTTP_200_OK)
         if serializer.is_valid():
             user = serializer.save()
             confirmation_code = default_token_generator.make_token(user)
@@ -124,27 +153,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly, )
-    filter_backends = (filters.SearchFilter, )
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ('name', )
     lookup_field = 'slug'
-
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data,
-                            status=status.HTTP_201_CREATED)
-        return Response('При заполнении полей ошибка.',
-                        status=status.HTTP_400_BAD_REQUEST)
-
-
-class Pagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
+    pagination_class = Pagination
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -196,18 +211,27 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (AuthorAdminModerOrReadOnly,)
-
-    def get_review(self):
-        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+    permission_classes = (AuthorAdminModerOrReadOnly,
+                          permissions.IsAuthenticatedOrReadOnly)
+    pagination_class = Pagination
 
     def get_queryset(self):
-        return self.get_title().comments
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id')
+        )
+        return review.comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, review=self.get_review())
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id')
+        )
+        serializer.save(
+            author=self.request.user,
+            review=review
+        )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -219,15 +243,40 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     pagination_class = Pagination
 
-    @action(methods=['GET', 'PATCH'], detail=True, url_path='me')
-    def get_patch_current_user(self, request):
-        if request.method == 'GET':
-            data = User.objects.all().filter(username=request.user).values(
-                'username', 'email', 'first_name', 'last_name', 'bio', 'role')
-            return Response(data, status=status.HTTP_200_OK)
-        elif request.method == 'PATCH':
-            serializer = UserSerializer(data=request.data)
-            if serializer.is_valid():
-                return self.update(request)
-            return Response('При заполнении полей ошибка.',
-                            status=status.HTTP_400_BAD_REQUEST)
+    @action(
+        detail=False,
+        methods=['get', 'patch', 'delete'],
+        url_path=r'(?P<username>[\w.@+-]+)',
+        url_name='get_user'
+    )
+    def get_user_by_username(self, request, username):
+        user = get_object_or_404(User, username=username)
+        if request.method == 'PATCH':
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        elif request.method == 'DELETE':
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        url_path='me',
+        url_name='me',
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def get_me_data(self, request):
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                request.user, data=request.data,
+                partial=True, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

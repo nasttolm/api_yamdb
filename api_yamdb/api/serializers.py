@@ -76,26 +76,39 @@ class TitleGETSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    author = StringRelatedField(default=serializers.CurrentUserDefault())
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = '__all__'
         model = Review
         read_only_fields = ('author', 'pub_date')
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
     author = StringRelatedField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        fields = ('id', 'text', 'author', 'pub_date')
+        fields = '__all__'
         model = Comment
         read_only_fields = ('author', 'pub_date')
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True,
+                                     max_length=150)
+    email = serializers.EmailField(required=True,
+                                   max_length=254)
 
     class Meta:
         fields = ('username', 'email', 'first_name', 'last_name', 'bio',
