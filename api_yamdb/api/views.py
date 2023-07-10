@@ -16,8 +16,8 @@ from reviews.models import (User,
                             Category,
                             Genre,
                             Title,
-                            Review,
-                            Comment)
+                            Review
+                            )
 from .serializers import (CommentSerializer,
                           ReviewSerializer,
                           TitleGETSerializer,
@@ -198,7 +198,8 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (AuthorAdminModerOrReadOnly,)
+    permission_classes = (AuthorAdminModerOrReadOnly,
+                          permissions.IsAuthenticatedOrReadOnly)
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
