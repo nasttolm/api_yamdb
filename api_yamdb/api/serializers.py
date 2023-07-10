@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField, StringRelatedField
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import (User,
                             Category,
@@ -8,6 +9,7 @@ from reviews.models import (User,
                             Review,
                             Comment)
 from reviews.models import username_regular
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
 
@@ -30,7 +32,12 @@ class UserGetTokenSerializer(serializers.Serializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=256)
-    slug = serializers.SlugField(max_length=50)
+    slug = serializers.SlugField(
+        max_length=50,
+        validators=[
+            UniqueValidator(queryset=Category.objects.all())
+        ],
+    )
 
     class Meta:
         fields = ('name', 'slug')
@@ -39,7 +46,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class GenreSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=256)
-    slug = serializers.SlugField(max_length=50)
+    slug = serializers.SlugField(
+        max_length=50,
+        validators=[
+            UniqueValidator(queryset=Genre.objects.all())
+        ],
+    )
 
     class Meta:
         fields = ('name', 'slug')
@@ -114,11 +126,21 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True,
-                                     max_length=150,
-                                     validators=[username_regular])
-    email = serializers.EmailField(required=True,
-                                   max_length=254)
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+        validators=[
+            username_regular,
+            UniqueValidator(queryset=User.objects.all())
+        ],
+    )
+    email = serializers.EmailField(
+        required=True,
+        max_length=254,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+    )
 
     class Meta:
         fields = ('username', 'email', 'first_name', 'last_name', 'bio',
