@@ -9,10 +9,8 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .mixins import ModelMixinSet
 from reviews.models import (User,
                             Category,
                             Genre,
@@ -32,17 +30,12 @@ from .serializers import (CommentSerializer,
                           CommentSerializer,
                           UserSerializer
                           )
-
 from .permissions import (AdminOrReadOnly,
                           AuthorAdminModerOrReadOnly,
                           AdminPermission)
 from .filters import TitleFilter
-
-
-class Pagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
+from .pagination import Pagination
+from .secondary import create_code
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -68,20 +61,6 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.validated_data['role'] = request.user.role
                 serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-def create_code(username):
-    user = get_object_or_404(User, username=username)
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        "Подтверждение регистрации на YaMDb!",
-        "Для подтверждения регистрации отправьте код:"
-        f"{confirmation_code}",
-        "yamdb.host@yandex.ru",
-        [user.email],
-        fail_silently=False,
-    )
-    print(confirmation_code)
 
 
 class UserRegistrationView(APIView):
@@ -116,14 +95,6 @@ class UserGetTokenView(APIView):
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             user = get_object_or_404(User, username=username)
-            token = serializer.validated_data.get('confirmation_code')
-            confirmation_code = default_token_generator.check_token(
-                user, token)
-            if not confirmation_code:
-                return Response(
-                    serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
             refresh = RefreshToken.for_user(user)
             return Response(
                 {'token': str(refresh.access_token)},
@@ -162,7 +133,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class GenreViewSet(ModelMixinSet):
+class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly, )
@@ -179,6 +150,14 @@ class GenreViewSet(ModelMixinSet):
                             status=status.HTTP_201_CREATED)
         return Response('При заполнении полей ошибка.',
                         status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response('Запросы к жанрам по slug запрещены.',
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        return Response('Изменения жанров по slug запрещены.',
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -246,7 +225,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('username')
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AdminPermission,)
     filter_backends = (filters.SearchFilter,)

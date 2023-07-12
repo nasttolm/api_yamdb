@@ -1,3 +1,6 @@
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField, StringRelatedField
 from rest_framework.validators import UniqueValidator
@@ -28,6 +31,17 @@ class UserGetTokenSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=255, read_only=True)
     username = serializers.CharField(max_length=256)
     confirmation_code = serializers.CharField(max_length=256)
+
+    def validate(self, data):
+        user = get_object_or_404(User, username=data['username'])
+        token = data['confirmation_code']
+        confirmation_code = default_token_generator.check_token(
+            user, token)
+        if not confirmation_code:
+            raise serializers.ValidationError(
+                {'Код подтверждения отсутствует'}
+            )
+        return data
 
 
 class CategorySerializer(serializers.ModelSerializer):

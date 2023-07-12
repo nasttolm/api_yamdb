@@ -6,14 +6,15 @@ from .validators import year_validator, slug_validator, username_regular
 
 
 CHAR_REQUIRED_NUMBER = 16
-ROLES = [
-    ('user', 'user'),
-    ('moderator', 'moderator'),
-    ('admin', 'admin')
-]
+NAME_MAX_LENGTH = 256
 
 
 class User(AbstractUser):
+    ROLES = (
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin')
+    )
     username = models.CharField(
         max_length=150,
         unique=True,
@@ -44,7 +45,7 @@ class User(AbstractUser):
         verbose_name='Биография пользователя'
     )
     role = models.CharField(
-        max_length=20,
+        max_length=40,
         choices=ROLES,
         default=ROLES[0][0],
         verbose_name='Роль пользователя'
@@ -80,7 +81,7 @@ class User(AbstractUser):
 
 class Category(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название категории'
     )
     slug = models.SlugField(
@@ -101,7 +102,7 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
@@ -122,14 +123,15 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название произведения'
     )
     year = models.IntegerField(
         validators=[year_validator],
-        verbose_name='Год выпуска',
         null=True,
-        blank=True
+        blank=True,
+        db_index=True,
+        verbose_name='Год выпуска',
     )
     description = models.TextField(
         null=True,
@@ -140,16 +142,16 @@ class Title(models.Model):
         Genre,
         blank=True,
         through='GenreTitle',
+        related_name='titles',
         verbose_name='Жанр',
-        related_name='titles'
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
-        related_name='titles',
-        verbose_name='Категория',
         null=True,
         blank=True,
+        related_name='titles',
+        verbose_name='Категория',
     )
 
     class Meta:
@@ -237,7 +239,6 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации комментария',
-        db_index=True
     )
 
     class Meta:
