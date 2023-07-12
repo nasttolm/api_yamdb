@@ -16,33 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-)
 
-from api.views import UserRegistrationView, UserGetTokenView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('api.urls')),
+    path('api/v1/', include('users.urls')),
     path(
         'redoc/',
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
-    ),
-    path(
-        'api/v1/auth/signup/',
-        UserRegistrationView.as_view(),
-        name='user_registration'
-    ),
-    path(
-        'api/v1/auth/token/',
-        UserGetTokenView.as_view(),
-        name='token_obtain_pair'
-    ),
-    path(
-        'api/v1/token/refresh/',
-        TokenRefreshView.as_view(),
-        name='token_refresh'
     ),
 ]
