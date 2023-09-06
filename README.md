@@ -10,9 +10,9 @@ A service for collecting user reviews of various works, the ability to read revi
 
 
 ### Authors
-Анастасия Толмачева
-Александр
-Саид Амиров
+- Anastasia Tolmacheva
+- Alexander
+- Said Amirov
 
 
 ### Running a project
