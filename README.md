@@ -1,31 +1,26 @@
-# api_yamdb
+# API YaMDb
 
+### Description
+A service for collecting user reviews of various works, the ability to read reviews related to a specific work, as well as write and read comments on a separate review.
 
-
-## Описание
-Проект YaMDb представляет из себя сервис для сбора отзывов пользователей 
-на различные произведения, возможности читать отзывы, относящиеся к конкретному произведению,
-а так же писать и читать комментарии к отдельному отзыву.
-
-
-## Используемые технологии 
+### Technologies 
 - Python 3.9
 - Django 3.2
 - DRF 3.12.4
 
 
-## Авторы
+### Authors
 Анастасия Толмачева
 Александр
 Саид Амиров
 
 
-## Установка
-- Клонировать репозиторий и перейти в него в командной строке:
+### Running a project
+- Clone the repository and go to it on the command line:
 
 ```git clone https://github.com/TrashBlock/api_yamdb.git```
 
-- Cоздать и активировать виртуальное окружение:
+- Install and activate the virtual environment
 
 Windows
 ```python -m venv venv```
@@ -35,367 +30,47 @@ Linux
 ```python3 -m venv env```
 ```source env/bin/activate```
 
-- Установить зависимости из файла requirements.txt:
+- Install dependencies from requirements.txt file:
 
 ```python -m pip install --upgrade pip```
 
 ```pip install -r requirements.txt```
 
-- Выполнить миграции:
+- Run migrations:
 
 ```python manage.py migrate```
 
-- Запустить проект:
+- In the folder with the manage.py file, run the command:
 
 ```python manage.py runserver```
 
 
-## Примеры запросов
+### Request examples
 ```
-Регистрация пользователей и выдача токенов
-Регистрация нового пользователя
+User registration and token issuance
+Registering a new user
 POST: /api/v1/auth/signup/
-Текст запроса:
+Request text:
 {
     "email": "user@example.com",
     "username": "string"
 }
-Текст ответа:
+Response text:
 {
     "email": "string",
     "username": "string"
 }
 
-Получение JWT-токена
+Getting a JWT token
 /api/v1/auth/token/
-Текст запроса:
+Request text:
 {
     "username": "string",
     "confirmation_code": "string"
 }
-Текст ответа:
+Response text:
 {
     "token": "string"
-}
-
-
-Категории произведений
-Получение списка всех категорий
-/api/v1/categories/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Добавление новой категории
-/api/v1/categories/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Удаление категории
-/api/v1/categories/{slug}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-
-Категории жанров
-Получение списка всех жанров
-/api/v1/genres/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Добавление жанра
-/api/v1/genres/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Удаление жанра
-/api/v1/genres/{slug}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-
-Произведения, к которым пишут отзывы (определённый фильм, книга или песенка).
-Получение списка всех произведений
-/api/v1/titles/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Добавление произведения
-/api/v1/titles/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Получение информации о произведении
-/api/v1/titles/{titles_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Частичное обновление информации о произведении
-/api/v1/titles/{titles_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Удаление произведения
-/api/v1/titles/{titles_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-
-Отзывы
-Получение списка всех отзывов
-/api/v1/titles/{title_id}/reviews/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Добавление нового отзыва
-/api/v1/titles/{title_id}/reviews/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Полуение отзыва по id
-/api/v1/titles/{title_id}/reviews/{review_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Частичное обновление отзыва по id
-/api/v1/titles/{title_id}/reviews/{review_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Удаление отзыва по id
-/api/v1/titles/{title_id}/reviews/{review_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-
-Комментарии к отзывам
-Получение списка всех комментариев к отзыву
-/api/v1/titles/{title_id}/reviews/{review_id}/comments/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Добавление комментария к отзыву
-/api/v1/titles/{title_id}/reviews/{review_id}/comments/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Получение комментария к отзыву
-/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Частичное обновление комментария к отзыву
-/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Удаление комментария к отзыву
-/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-
-Пользователи
-Получение списка всех пользователей
-/api/v1/users/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Добавление пользователя
-/api/v1/users/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Получение пользователя по username
-/api/v1/users/{username}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Изменение данных пользователя по username
-/api/v1/users/{username}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Удаление пользователя по username
-/api/v1/users/{username}/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Получение данных своей учетной записи
-/api/v1/users/me/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
-}
-
-Изменение данных своей учетной записи
-/api/v1/users/me/
-Текст запроса:
-{
-
-}
-Текст ответа:
-{
- 
 }
 
 ```
