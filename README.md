@@ -11,7 +11,7 @@ A service for collecting user reviews of various works, the ability to read revi
 
 ### Authors
 - Anastasia Tolmacheva
-- Alexander
+- Alexander Bodnar
 - Said Amirov
 
 
