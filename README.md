@@ -18,7 +18,7 @@ A service for collecting user reviews of various works, the ability to read revi
 ### Running a project
 - Clone the repository and go to it on the command line:
 
-```git clone https://github.com/TrashBlock/api_yamdb.git```
+```git clone git@github.com:nasttolm/api_yamdb_.git```
 
 - Install and activate the virtual environment
 
