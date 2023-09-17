@@ -1,5 +1,7 @@
 # API YaMDb
 
+Yandex educational project. Python Developer course (backend).
+
 ### Description
 A service for collecting user reviews of various works, the ability to read reviews related to a specific work, as well as write and read comments on a separate review.
 
