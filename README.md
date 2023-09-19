@@ -78,5 +78,5 @@ Response text:
 ```
 ### Authors
 - Anastasia Tolmacheva
-- Alexander Bodnar
-- Said Amirov
+- Alexander Bodnar https://github.com/infidew
+- Said Amirov https://github.com/TrashBlock/
