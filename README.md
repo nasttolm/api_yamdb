@@ -4,13 +4,11 @@ Yandex educational project. Python Developer course (backend).
 
 ### Description
 The YaMDb project collects user reviews on titles. The titles are divided into categories: "Books", "Films", "Music". The list of categories can be expanded by the administrator.
+The works themselves are not stored on YaMDb, you cannot watch a movie or listen to music there. 
 
-The works themselves are not stored in YaMDb, you cannot watch a movie or listen to music here. In each category there are works: books, movies or music.
+A work can be assigned a genre from a preset list. Only the administrator can add new genres.
 
-A work can be assigned a genre from the preset list. Only the administrator can create new genres.
-
-Grateful or outraged users leave text reviews for the works and give the work a rating in the range from one to ten; an average rating of the work is formed from user ratings — a rating. The user can leave only one review for one work.
-A service for collecting user reviews of various works, the ability to read reviews related to a specific work, as well as write and read comments on a separate review.
+Users can leave text reviews of the works and give the work a rating in the range from one to ten; an average rating of the work is formed based on user ratings. The user can leave only one review for one work.
 
 ### Technologies 
 - Python 3.9
